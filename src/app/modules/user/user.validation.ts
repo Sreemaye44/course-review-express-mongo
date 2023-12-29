@@ -8,11 +8,12 @@ const createUserValidationSchema = z.object({
 		password: z
 			.string()
 			.min(8)
-			.regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/), // Password strength validation
+			.refine((password) => /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/.test(password), {
+				message: 'Password should be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character (!@#$%^&*).'}),
 		role: z.enum(["user", "admin"]).default("user"),
 	}),
 });
 
-export const ReviewValidationSchema = {
+export const UserValidationSchema = {
 	createUserValidationSchema,
 };

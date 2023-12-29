@@ -12,3 +12,15 @@ router.post(
 // router.get("/courses", reviewControllers.createReview);
 
 export const ReviewRoutes = router;
+
+
+
+
+
+
+
+
+
+
+
+

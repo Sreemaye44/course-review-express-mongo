@@ -1,7 +1,9 @@
 import { Schema, model } from "mongoose";
-import { TUser } from "./user.interface";
+import bcrypt from 'bcrypt';
+import { TUser, UserModel } from "./user.interface";
+import config from "../../config";
 
-const userSchema = new Schema <TUser>({
+const userSchema = new Schema <TUser, UserModel>({
   username: {
     type: String,
     required: true,
@@ -21,7 +23,7 @@ const userSchema = new Schema <TUser>({
     required: true,
     minlength: 8, 
     validate: {
-      validator: (value) => {
+      validator: (value: string) => {
         // Example password strength validation (customizable)
         return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/.test(value);
       },
@@ -32,8 +34,26 @@ const userSchema = new Schema <TUser>({
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
-  }
+  },
+},{ timestamps: true, versionKey: false },);
+userSchema.pre('save', async function (next) {
+
+  this.password = await bcrypt.hash(
+    this.password,
+    Number(config.salt_rounds),
+  );
+
+  next();
 });
 
-export const User = model<TUser>("User", userSchema);
+userSchema.statics.isPasswordMatched = async function (
+  plainTextPassword,
+  hashedPassword,
+) {
+  return await bcrypt.compare(plainTextPassword, hashedPassword);
+};
+
+
+
+export const User = model<TUser, UserModel>("User", userSchema);
 

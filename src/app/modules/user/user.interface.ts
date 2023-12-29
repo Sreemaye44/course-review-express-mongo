@@ -5,6 +5,7 @@ export type TUser = {
     username: string;
     email: string;
     password: string;
+    passwordChangeAt?: Date;
     role: string;
 };
 export interface UserModel extends Model<TUser>{

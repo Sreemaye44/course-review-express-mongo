@@ -38,7 +38,7 @@ const courseSchema = new Schema<TCourse>(
     durationInWeeks: { type: Number },
     details: detailsSchema, // Details object based on the previously defined schema
   },
-  { versionKey: false }
+  {timestamps: true, versionKey: false }
 );
 
 courseSchema.pre("save", async function (next) {

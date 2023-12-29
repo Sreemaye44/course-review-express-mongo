@@ -30,6 +30,9 @@ const userSchema = new Schema <TUser, UserModel>({
       message: 'Password should contain at least one lowercase letter, one uppercase letter, one number, one special character, and be at least 8 characters long.'
     }
   },
+  passwordChangeAt: {
+    type: Date
+  },
   role: {
     type: String,
     enum: ['user', 'admin'],

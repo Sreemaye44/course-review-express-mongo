@@ -6,6 +6,7 @@ const createCategorySchemaValidation = z.object({
       invalid_type_error: "Name must be string",
       required_error: "Name is required",
     }),
+    createdBy: z.string().optional(),
   }),
 });
 export const categorySchemaValidation = {

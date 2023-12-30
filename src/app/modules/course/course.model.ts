@@ -37,10 +37,10 @@ const courseSchema = new Schema<TCourse>(
     provider: { type: String, required: true },
     durationInWeeks: { type: Number },
     details: detailsSchema,
-    createdBy: { type: Schema.Types.ObjectId, ref: "user" },
+    createdBy: { type: Schema.Types.ObjectId, ref: "User" },
     // Details object based on the previously defined schema
   },
-  {timestamps: true, versionKey: false }
+  { timestamps: true, versionKey: false }
 );
 
 courseSchema.pre("save", async function (next) {

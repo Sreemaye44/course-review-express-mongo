@@ -49,6 +49,7 @@ const createCourseSchemaValidation = z.object({
       endDate: z.string(),
       language: z.string(),
       provider: z.string(),
+      createdBy: z.string().optional(),
       details: z.object({
         level: z.enum(["Beginner", "Intermediate", "Advanced"]),
         description: z.string().optional(),

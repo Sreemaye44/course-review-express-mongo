@@ -4,17 +4,7 @@ import sendResponse from "../../utils/sendResponse";
 import { CourseServices } from "./course.service";
 
 const createCourse = catchAsync(async (req, res) => {
-  const createdBy = req.user._id;
-  const modifiedReq = {
-    ...req.body,createdBy
-  }
-  console.log(modifiedReq)
-  const result = await CourseServices.createCourseIntoDB(modifiedReq);
-  // const modifiedResult = {
-  //   ...result.toObject(), // Convert Mongoose document to plain object
-  //   createdBy, // Add the createdAt field
-  // };
-  // //send response
+  const result = await CourseServices.createCourseIntoDB(req.user, req.body);
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,

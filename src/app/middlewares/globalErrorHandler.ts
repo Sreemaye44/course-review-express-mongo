@@ -45,7 +45,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     errorMessage = simplifiedError?.errorMessage;
   } else if (err instanceof AppError) {
     statusCode = err?.statusCode;
-    message = err?.message;
+    message = "Unauthorized Access";
     errorMessage = [
       {
         message: err?.message,

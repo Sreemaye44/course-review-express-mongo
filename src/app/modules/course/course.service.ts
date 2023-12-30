@@ -1,16 +1,24 @@
+import { JwtPayload } from "jsonwebtoken";
 import mongoose from "mongoose";
 import { filter } from "../../helpers/filterHelper";
 import { TCourse } from "./course.interface";
 import { Course } from "./course.model";
 
-const createCourseIntoDB = async (payload: TCourse) => {
-	console.log('service',payload)
-	const result = await Course.create(payload);
+const createCourseIntoDB = async (user: JwtPayload, payload: TCourse) => {
+	const { _id } = user;
+	const createdBy = _id;
+	const result = await Course.create({ ...payload, createdBy });
 	return result;
 };
 
 const getAllCoursesFromDB = async (payload: any) => {
-	const result = await filter(Course.find().populate('user'), payload);
+	const result = await filter(
+		Course.find().populate({
+			path: "createdBy",
+			select: "-passwordChangeHistory", // Exclude the passwordchangeHistory field
+		}),
+		payload
+	);
 
 	return result;
 };
@@ -59,7 +67,10 @@ const updateCourseintoDB = async (id: string, payload: Partial<TCourse>) => {
 		//   // modifiedUpdatedData["tags"] = tags;
 	}
 
-	const result = await Course.findOne({ id });
+	const result = await Course.findOne({ id }).populate({
+		path: "createdBy",
+		select: "-passwordChangeHistory", // Exclude the passwordchangeHistory field
+	});
 
 	return result;
 };
@@ -69,10 +80,67 @@ const getSingleCourseFromDB = async (id: string) => {
 		{ $match: { _id: mongoose.Types.ObjectId.createFromHexString(id) } },
 		{
 			$lookup: {
+				from: "users",
+				let: { createdBy: "$createdBy" },
+				pipeline: [
+					{
+						$match: {
+							$expr: { $eq: ["$_id", "$$createdBy"] },
+						},
+					},
+					{
+						$project: {
+							password: 0,
+							passwordChangeHistory: 0, // Exclude the password field
+							// Include other fields as needed
+						},
+					},
+				],
+				as: "createdBy",
+			},
+		},
+		{
+			$lookup: {
 				from: "reviews",
 				localField: "_id",
 				foreignField: "courseId",
 				as: "reviews",
+			},
+		},
+		{
+			$unwind: {
+				path: "$reviews",
+				preserveNullAndEmptyArrays: true,
+			},
+		},
+		{
+			$lookup: {
+				from: "users",
+				let: { createdByReview: "$reviews.createdBy" },
+				pipeline: [
+					{
+						$match: {
+							$expr: { $eq: ["$_id", "$$createdByReview"] },
+						},
+					},
+					{
+						$project: {
+							password: 0,
+							passwordChangeHistory: 0,
+							// Exclude the password field
+							// Include other fields as needed
+						},
+					},
+				],
+				as: "reviews.createdBy",
+			},
+		},
+		{
+			$group: {
+				_id: "$_id",
+				createdBy: { $first: "$createdBy" },
+				reviews: { $push: "$reviews" },
+				// Include other fields from the original collection if needed
 			},
 		},
 	]);
@@ -81,6 +149,27 @@ const getSingleCourseFromDB = async (id: string) => {
 
 const getBestCourseFromDB = async () => {
 	const result = await Course.aggregate([
+		{
+			$lookup: {
+				from: "users",
+				let: { createdBy: "$createdBy" },
+				pipeline: [
+					{
+						$match: {
+							$expr: { $eq: ["$_id", "$$createdBy"] },
+						},
+					},
+					{
+						$project: {
+							password: 0,
+							passwordChangeHistory: 0, // Exclude the password field
+							// Include other fields as needed
+						},
+					},
+				],
+				as: "createdBy",
+			},
+		},
 		{
 			$lookup: {
 				from: "reviews",

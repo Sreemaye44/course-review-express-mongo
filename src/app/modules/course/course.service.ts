@@ -3,13 +3,14 @@ import { filter } from "../../helpers/filterHelper";
 import { TCourse } from "./course.interface";
 import { Course } from "./course.model";
 
-const createCourseIntoDB = async ( payload: TCourse) => {
+const createCourseIntoDB = async (payload: TCourse) => {
+	console.log('service',payload)
 	const result = await Course.create(payload);
 	return result;
 };
 
 const getAllCoursesFromDB = async (payload: any) => {
-	const result = await filter(Course.find(), payload);
+	const result = await filter(Course.find().populate('user'), payload);
 
 	return result;
 };

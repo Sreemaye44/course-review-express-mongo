@@ -10,7 +10,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
 		const token = req.headers.authorization;
 		// checking if the token is missing
 		if (!token) {
-			throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
+			throw new AppError(httpStatus.UNAUTHORIZED, "You do not have the necessary permissions to access this resource!");
 		}
 
 		// checking if the given token is valid

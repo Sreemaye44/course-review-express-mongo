@@ -12,7 +12,10 @@ const changePasswordValidationSchema = z.object({
     currentPassword: z.string({
       required_error: "current password is required",
     }),
-    newPassword: z.string({ required_error: "Password is required" }),
+    newPassword: z.string()
+			.min(8)
+			.refine((password) => /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/.test(password), {
+				message: 'Password should be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character (!@#$%^&*).'})
   }),
 });
 
